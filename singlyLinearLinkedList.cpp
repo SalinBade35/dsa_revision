@@ -1,23 +1,19 @@
 #include<iostream>
-#include<stdlib.h>
-#include<string>
+#include<cstring>
 using namespace std;
 
 struct node
 {
     int info;
     struct node *next;
-}
+};
 
-struct node *pfrist = NULL, *pnew, *pthis, *ptemp;
+struct node *pfirst = NULL, *pnew, *pthis, *ptemp;
 int count = 0;
 
-void create()
+void create(int data)
 {
-    pnew = (struct node*)malloc(sizeof(struct node));
-    int data;
-    cout<<"entre data: ";
-    cin>>data;
+    pnew = new node(); // Using new instead of malloc
     pnew->info = data;
     pnew->next = NULL;
     count++;
@@ -25,132 +21,159 @@ void create()
 
 void delete_from_sp_position(int pos)
 {
-    if(pos<1||pos>count)
+    if(pos < 1 || pos > count)
     {
-        cout<<"invalid";
+        cout << "Invalid position\n";
+        return;
     }
-    else if(pos ==1)
+
+    if(pfirst == NULL)
     {
-        if(pfirst == NULL)
-        {
-            cout<<"list is empty";
-
-        }
-        else{
-            ptemp = pfirst;
-            pfirst = pfirst->next;
-            free(ptemp);
-            count--;
-        }
+        cout << "List is empty\n";
+        return;
     }
-    else if(pos == count)
+
+    if(pos == 1)
     {
-       
-        if(pfirst == NULL)
-        {
-            cout<<"list is empty";
-
-        } 
-        else if(pfirst->next == NULL)
-        {
-            free(pfirst);
-            pfirst = NULL;
-            count--;
-        }
-        else
-        {
-            pthis = pfirst;
-            while(pthis->next->next!=NULL)
-            {
-                pthis=pthis->next;
-
-            }
-            ptemp=pthis->next;
-            pthis->next=NULL;
-            free(ptemp);
-            count--;
-        }
-        else{
-            pthis = pfirst;
-            for(int i=0; i<pos-2;i++)
-            {
-                pthis=pthis->next;
-                ptemp = pthis->next;
-                pthis->next=ptemp->next;
-                free(ptemp);
-                count--;
-            }
-        }
+        ptemp = pfirst;
+        pfirst = pfirst->next;
+        delete ptemp; // Using delete instead of free
+        count--;
     }
+    else
+    {
+        pthis = pfirst;
+        for(int i = 1; i < pos - 1; i++) 
+        {
+            pthis = pthis->next;
+        }
+        ptemp = pthis->next;
+        pthis->next = ptemp->next;
+        delete ptemp;
+        count--;
+    }
+}
+
+void delete_from_end()
+{
+    delete_from_sp_position(count); // Reusing the specific position deletion logic
 }
 
 void display()
 {
     if(pfirst == NULL)
     {
-        cout<<"empty list";
+        cout << "List is empty\n";
+        return;
     }
-    else{
-        pthis = pfirst;
-        cout<<"list: ";
-        while(pthis != NULL)
-        {
-            cout<<pthis->info<<endl;
-            pthis = pthis->next;
-        }
-        cout<<endl;
+
+    pthis = pfirst;
+    cout << "List: ";
+    while(pthis != NULL)
+    {
+        cout << pthis->info << " ";
+        pthis = pthis->next;
     }
+    cout << endl;
 }
 
-void insert_at_sp_pos()
+void insert_at_beg(int data)
 {
-    int loc;
-    cout<<"entre location: ";
-    cin>>loc;
-    if(loc == count)
+    create(data);
+    if(pfirst == NULL)
     {
-        create();
-        if(pfirst==NULL)
-        {
-            pfirst = pnew;
-            else
-            {
-                pthis=pfirst;
-                while(pthis->next!=NULL)
-                {
-                    pthis=pthis->next;
-
-                }
-                pthis->next = pnew;
-            }
-        }
-
+        pfirst = pnew;
     }
     else
     {
-        create();
-        pthis = pfirst;
-        for(int i = 0; i<loc-1; i++)
-        {
-            pthis=pthis->next;
-            pnew->next=pthis->next;
-            pthis->next=pnew;
-        }
+        pnew->next = pfirst;
+        pfirst = pnew;
     }
+}
+
+void insert_at_sp_pos(int loc, int data)
+{
+    if(loc < 1 || loc > count + 1) 
+    {
+        cout << "Invalid location\n";
+        return;
+    }
+
+    create(data);
+    if(loc == 1)
+    {
+        insert_at_beg(data);
+    }
+    else
+    {
+        pthis = pfirst;
+        for(int i = 1; i < loc - 1; i++) 
+        {
+            pthis = pthis->next;
+        }
+        pnew->next = pthis->next;
+        pthis->next = pnew;
+    }
+}
+
+void node_count()
+{
+    cout << "Total nodes: " << count << endl;
 }
 
 int main()
 {
-    int option, pos;
-    char ch;
+    int option, pos, data;
+    string ch;
 
-    do
-    {
-        cout<<"entre option: "<<endl;
-        cout<<"1. "
-    } while ({
-        
-    });
+    do {
+        cout << "1. Insert at Specific Position\n";
+        cout << "2. Insert at Beginning\n";
+        cout << "3. Delete from Specific Position\n";
+        cout << "4. Delete from End\n";
+        cout << "5. Display\n";
+        cout << "6. Node Count\n";
+        cin >> option;
+
+        switch(option)
+        {
+            case 1:
+                cout << "Enter position and data: ";
+                cin >> pos >> data;
+                insert_at_sp_pos(pos, data);
+                break;
+
+            case 2:
+                cout << "Enter data to insert at beginning: ";
+                cin >> data;
+                insert_at_beg(data);
+                break;
+
+            case 3:
+                cout << "Enter position to delete: ";
+                cin >> pos;
+                delete_from_sp_position(pos);
+                break;
+
+            case 4:
+                delete_from_end();
+                break;
+
+            case 5:
+                display();
+                break;
+
+            case 6:
+                node_count();
+                break;
+
+            default:
+                cout << "Invalid option\n";
+                break;
+        }
+        cout << "Do you want to continue? ";
+        cin >> ch;
+    } while(ch == "yes" || ch == "Yes" || ch == "y" || ch == "Y");
     
-
+    return 0;
 }
